@@ -306,7 +306,7 @@ void whisper_print_progress_callback(struct whisper_context * /*ctx*/, struct wh
     int * progress_prev  = &(((whisper_print_user_data *) user_data)->progress_prev);
     if (progress >= *progress_prev + progress_step) {
         *progress_prev += progress_step;
-        fprintf(stderr, "%s: progress = %3d%%\n", __func__, progress);
+        fprintf(stderr, "\n%10d%%\n", progress);
     }
 }
 

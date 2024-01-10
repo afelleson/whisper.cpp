@@ -9,6 +9,10 @@
 #include <thread>
 #include <vector>
 #include <cstring>
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <cstdlib>
 
 #if defined(_MSC_VER)
 #pragma warning(disable: 4244 4267) // possible loss of data
@@ -274,7 +278,15 @@ void whisper_print_progress_callback(struct whisper_context * /*ctx*/, struct wh
     int * progress_prev  = &(((whisper_print_user_data *) user_data)->progress_prev);
     if (progress >= *progress_prev + progress_step) {
         *progress_prev += progress_step;
-        fprintf(stderr, "%s: progress = %3d%%\n", __func__, progress);
+
+        int terminal_width = 80;
+        #if defined(TIOCGWINSZ)
+            struct winsize ts_winsz;
+            ioctl(STDIN_FILENO, TIOCGWINSZ, &ts_winsz);
+            terminal_width = ts_winsz.ws_col;
+        #endif /* TIOCGWINSZ */
+
+        fprintf(stderr, "\n%*d%%\n", terminal_width - 1, progress);
     }
 }
 
