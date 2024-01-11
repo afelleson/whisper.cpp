@@ -34,22 +34,10 @@ printf "\n\n\n"
 
 # Transcribe .wav into a .txt file.
 ./main --file "$folder1/$var1.wav" --model ~/whisper.cpp/models/ggml-small.en.bin \
---no-timestamps --print-colors --print-progress --output-txt --output-file "$folder1/$var1"
+--no-timestamps --print-colors --print-progress --output-txt --output-srt --output-file "$folder1/$var1"
 
-# Remove newlines and separate sentences by newlines (.txt) or bullets (.rtf)
-tr -d '\n' < "$folder1/$var1.txt" | awk '{gsub(/\. /,". \n"); gsub(/\? /,"? \n")}1' \
-| awk '{gsub(/, okay?/,"."); gsub(/Okay? /,""); gsub(/Now,/,"\nNow,")}1' > "$folder1/$var1 newlines.txt"
+# Text editing
+tr -d '\n' < "$folder1/$var1.txt" | awk '{gsub(/^ /, ""); gsub(/, okay\?/,"."); gsub(/Okay[?.] /,"");\
+gsub(/Now,/,"\n\n---------\n\nNow,"); gsub(/So\b/,"\n\nSo")}1' | sponge "$folder1/$var1.txt"
 
-# Delete the original .txt file
-# rm input.txt
-
-# Note: The quotation marks around path names aren't always necessary. 
-# I like them because they make it easier to spot the paths. 
-# They're useful for paths that have spaces in them, but there are other ways to deal with those too. 
-# If folder1 or var1 might have spaces, it's a good idea to include the quotes.
-
-# Save this file as transcribeCpp.zsh
-# Then run the following to make this script executable (only have to do this once, not every time you edit this file):
-#     chmod +x transcribeCpp.zsh 
-# Run this script via 
-#     ./transcribeCpp.zsh
+awk '{gsub(/\. /,". \n"); gsub(/\? /,"? \n")}1' "$folder1/$var1.txt" > "$folder1/$var1 newlines.txt"
