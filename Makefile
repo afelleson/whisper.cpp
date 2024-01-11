@@ -349,7 +349,7 @@ CC_SDL=`sdl2-config --cflags --libs`
 SRC_COMMON     = examples/common.cpp examples/common-ggml.cpp
 SRC_COMMON_SDL = examples/common-sdl.cpp
 
-main: examples/main/main.cpp $(SRC_COMMON) $(WHISPER_OBJ)
+main: examples/main/main.cpp $(SRC_COMMON) $(WHISPER_OBJ) make_zsh_script_executable
 	$(CXX) $(CXXFLAGS) examples/main/main.cpp $(SRC_COMMON) $(WHISPER_OBJ) -o main $(LDFLAGS)
 	./main -h
 
@@ -376,6 +376,14 @@ talk: examples/talk/talk.cpp examples/talk/gpt-2.cpp $(SRC_COMMON) $(SRC_COMMON_
 
 talk-llama: examples/talk-llama/talk-llama.cpp examples/talk-llama/llama.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ)
 	$(CXX) $(CXXFLAGS) examples/talk-llama/talk-llama.cpp examples/talk-llama/llama.cpp $(SRC_COMMON) $(SRC_COMMON_SDL) $(WHISPER_OBJ) -o talk-llama $(CC_SDL) $(LDFLAGS)
+
+#
+# zsh shell script
+#
+
+.PHONY: make_zsh_script_executable
+make_zsh_script_executable:
+	chmod +x transcribeCpp.zsh
 
 #
 # Audio samples
