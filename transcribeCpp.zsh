@@ -14,9 +14,9 @@ cd ~/whisper.cpp
 # Ask for file name
 vared -p "Enter m4a or mp4 file name (without extension): " -c var1
 
-folder1=~/Downloads/"Temp save/Audio to transcribe"
+folder1=~/Downloads/"Audio to transcribe"
 # # Ask for file location
-# vared -p "Is it in the '.../Temp save/Audio to transcribe' folder? (y/n): " -c answer
+# vared -p "Is it in the '~/Downloads/Audio to transcribe' folder? (y/n): " -c answer
 # if [[ $answer != 'y' ]]; then
 #     vared -p "Provide the full path to the folder it's in: " -c folder1
 # else
@@ -24,6 +24,7 @@ folder1=~/Downloads/"Temp save/Audio to transcribe"
 # fi
 
 # Convert .mp4 or .m4a into a 16-bit .wav (required for whisper.cpp rn) 
+echo "Looking for $folder1/$var1.mp4 or $folder1/$var1.m4a"
 if [[ -f "$folder1/$var1.mp4" ]]; then
     ffmpeg -i "$folder1/$var1.mp4" -ar 16000 -ac 1 -c:a pcm_s16le "$folder1/$var1.wav"
 else
@@ -32,12 +33,13 @@ fi
 
 printf "\n\n\n"
 
-# Transcribe .wav into a .txt file.
+# Transcribe .wav into .txt and .srt files
 ./main --file "$folder1/$var1.wav" --model ~/whisper.cpp/models/ggml-small.en.bin \
 --no-timestamps --print-colors --print-progress --output-txt --output-srt --output-file "$folder1/$var1"
 
-# Text editing
-tr -d '\n' < "$folder1/$var1.txt" | awk '{gsub(/^ /, ""); gsub(/, okay\?/,"."); gsub(/Okay[?.] /,"");\
+# Txt editing specific to the media in question (you'll want to edit or remove this to your preferences)
+tr -d '\n' < "$folder1/$var1.txt" | awk '{gsub(/^ /, ""); gsub(/, okay\?/,"."); gsub(/Okay[?.] /,""); \
 gsub(/Now,/,"\n\n---------\n\nNow,"); gsub(/So\b/,"\n\nSo")}1' | sponge "$folder1/$var1.txt"
 
-awk '{gsub(/\. /,". \n"); gsub(/\? /,"? \n")}1' "$folder1/$var1.txt" > "$folder1/$var1 newlines.txt"
+# Create a copy of the txt file with each sentence on a new line
+awk '{gsub(/([^.])\n/, "\1 "); gsub(/\. /,". \n"); gsub(/\? /,"? \n")}1' "$folder1/$var1.txt" > "$folder1/$var1 newlines.txt"
